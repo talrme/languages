@@ -1,12 +1,16 @@
-import {languages,phraseKeys,phraseNames,notes} from './phrases.js';
+import {languages,phraseKeys,phraseNames,phraseDefinitions,notes} from './phrases.js';
 import {countries,cityFallbacks} from './countries.js';
 import {selectLanguages} from './selection.js';
 const $=s=>document.querySelector(s),esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const root=new URL('../',import.meta.url),storeKey='languages-v1';
 const icon=(name)=>`<i data-lucide="${name}" aria-hidden="true"></i>`;
 let saved={};try{saved=JSON.parse(localStorage.getItem(storeKey)||'{}');}catch{}
-let state={place:'us-0653000',view:'language',hideEnglish:true,count:5,phrases:3,roman:true,motion:true,theme:'design',favorites:[],...saved},snapshot,locations=[],practice=false,revealed=new Set(),toastTimer,voices=[],returnFocus;
+let state={place:'us-0653000',view:'language',hideEnglish:true,count:5,phrases:3,customLanguages:[],customPhrases:[],roman:true,motion:true,theme:'design',favorites:[],...saved},snapshot,locations=[],practice=false,revealed=new Set(),toastTimer,voices=[],returnFocus,picker;
 if(state.layoutVersion!==2){state.view='language';state.layoutVersion=2;}
+state.customLanguages=[...new Set((Array.isArray(state.customLanguages)?state.customLanguages:[]).filter(id=>languages[id]))];
+state.customPhrases=[...new Set((Array.isArray(state.customPhrases)?state.customPhrases:[]).filter(key=>phraseNames[key]))];
+if(state.count==='custom'&&!state.customLanguages.length)state.count=5;
+if(state.phrases==='custom'&&!state.customPhrases.length)state.phrases=3;
 const persist=()=>{try{localStorage.setItem(storeKey,JSON.stringify(state));}catch{toast('This browser could not save your preferences.');}};
 const icons=()=>window.lucide.createIcons();
 function toast(message){$('#toast').textContent=message;$('#toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').hidden=true,4200);}
@@ -15,7 +19,8 @@ const displayName=p=>p.name.replace(/ city(?=,)| town(?=,)| CDP(?=,)| municipali
 function populationRows(p=place()){
  return selectLanguages(p,snapshot,locations);
 }
-function rows(){return populationRows().filter(r=>!(state.hideEnglish&&r.id==='en')).slice(0,Number(state.count)||99);}
+function rows(){const all=populationRows();return state.count==='custom'?state.customLanguages.map(id=>all.find(row=>row.id===id)).filter(Boolean):all.filter(r=>!(state.hideEnglish&&r.id==='en')).slice(0,Number(state.count)||99);}
+function selectedPhrases(){return state.phrases==='custom'?phraseKeys.filter(key=>state.customPhrases.includes(key)):phraseKeys.slice(0,Number(state.phrases));}
 function pct(row){return row.percent===undefined?'':row.percent<.1?'<0.1%':row.percent.toFixed(1)+'%';}
 function voiceFor(id){
  const lang=languages[id].voice.toLowerCase(),exact=voices.find(v=>v.lang.toLowerCase()===lang);if(exact)return exact;
@@ -33,26 +38,49 @@ function render(){
  const p=place();document.body.dataset.theme=state.theme;document.body.classList.toggle('reduce-motion',!state.motion);
  $('#location').value=displayName(p);$('#place-label').textContent=displayName(p).split(',')[0];
  $('#data-label').textContent='About languages spoken here';
- $('#english-label').textContent=state.hideEnglish?'English hidden':'English included';
+ $('#english-label').textContent=state.count==='custom'?'Chosen languages':state.hideEnglish?'English hidden':'English included';
  $('#language-count').value=String(state.count);$('#phrase-count').value=String(state.phrases);
+ $('#language-count option[value=custom]').textContent=state.count==='custom'?`${state.customLanguages.length} picked`:'Choose…';
+ $('#phrase-count option[value=custom]').textContent=state.phrases==='custom'?`${state.customPhrases.length} picked`:'Choose…';
+ $('[data-pick=languages]').hidden=state.count!=='custom';$('[data-pick=phrases]').hidden=state.phrases!=='custom';
  document.querySelectorAll('[data-view]').forEach(b=>b.setAttribute('aria-selected',String(state.view===b.dataset.view)));
  $('#practice').setAttribute('aria-pressed',String(practice));$('#practice').classList.toggle('selected',practice);
- const active=rows(),keys=phraseKeys.slice(0,state.phrases),container=$('#results');
+ const active=rows(),keys=selectedPhrases(),container=$('#results');
  if(state.view==='saved'){
   const favorites=state.favorites.map(value=>{const [id,key]=value.split(':');return languages[id]&&phraseNames[key]?{id,key}:null;}).filter(Boolean);
   container.innerHTML=favorites.length?`<section class="phrase-section saved-section"><header><span class="section-number">★</span><h2>Saved phrases</h2></header>${favorites.map(({id,key})=>`<article class="phrase-row"><div class="row-label"><span>${esc(languages[id].name)}</span><small>${phraseNames[key]}</small></div>${translation({id},key)}</article>`).join('')}</section>`:`<div class="empty-state">${icon('bookmark')}<h2>No saved phrases yet</h2><p>Your bookmarks will stay on this device.</p><button data-switch-explore>Explore phrases</button></div>`;
  }else if(state.view==='language'){
   container.innerHTML=active.map((row,i)=>`<section class="phrase-section language-section" style="--section-index:${i}"><header><span class="section-number">${String(i+1).padStart(2,'0')}</span><div><h2>${esc(row.name)}</h2></div><button class="percent" data-category="${esc(row.category)}">${pct(row)||icon('info')}</button></header>${keys.map(key=>`<article class="phrase-row"><div class="row-label"><span>${phraseNames[key]}</span></div>${translation(row,key)}</article>`).join('')}</section>`).join('');
  }else{
-  container.innerHTML=keys.map((key,i)=>`<section class="phrase-section" id="phrase-${key}" style="--section-index:${i}"><header><span class="section-number">${String(i+1).padStart(2,'0')}</span><h2>${phraseNames[key]}</h2><span class="section-symbol" aria-hidden="true">${['♡','☀','↗','✦','◌','↺','✓','×'][i]}</span></header>${active.map(row=>`<article class="phrase-row"><button class="row-label" data-category="${esc(row.category)}"><span>${esc(row.name)}</span><small>${pct(row)}</small></button>${translation(row,key)}</article>`).join('')}</section>`).join('');
+  container.innerHTML=keys.map((key,i)=>`<section class="phrase-section" id="phrase-${key}" style="--section-index:${i%8}"><header><span class="section-number">${String(i+1).padStart(2,'0')}</span><h2>${phraseNames[key]}</h2><span class="section-symbol" aria-hidden="true">${['♡','☀','↗','✦','◌','↺','✓','×'][i%8]}</span></header>${active.map(row=>`<article class="phrase-row"><button class="row-label" data-category="${esc(row.category)}"><span>${esc(row.name)}</span><small>${pct(row)}</small></button>${translation(row,key)}</article>`).join('')}</section>`).join('');
  }
  if(!active.length&&state.view!=='saved')container.innerHTML='<div class="empty-state"><h2>English is hidden</h2><p>Include English or browse the full phrase library.</p><button data-library>All languages</button></div>';
  icons();refreshVoices();persist();
 }
 function modal(title,body,footer='<button class="primary" data-close>Done</button>'){
+ picker=null;
  returnFocus=document.activeElement;$('#modal-title').textContent=title;$('#modal-body').innerHTML=body;$('#modal-footer').innerHTML=footer;icons();if(!$('#modal').open)$('#modal').showModal();
 }
-function close(){if($('#modal').open)$('#modal').close();returnFocus?.focus?.({preventScroll:true});}
+function close(){picker=null;if($('#modal').open)$('#modal').close();returnFocus?.focus?.({preventScroll:true});}
+function chooseSet(type){
+ const isLanguage=type==='languages',selected=isLanguage?(state.customLanguages.length?state.customLanguages:rows().map(r=>r.id)):(state.customPhrases.length?state.customPhrases:selectedPhrases());
+ const options=isLanguage?Object.values(languages).sort((a,b)=>a.name.localeCompare(b.name)).map(l=>({key:l.id,name:l.name,group:''})):phraseDefinitions;
+ const groups=[...new Set(options.map(p=>p.group))];
+ modal(isLanguage?'Choose languages':'Choose words & phrases',`<div class="picker-tools"><label class="picker-search"><span class="sr-only">Search ${type}</span><input id="picker-search" type="search" placeholder="Find ${isLanguage?'a language':'a phrase'}" autocomplete="off"></label><div class="picker-actions"><button data-pick-all>All</button><button data-pick-clear>Clear</button></div></div><div class="selection-list">${groups.map(group=>`<section class="selection-group">${group?`<h3>${group}</h3>`:''}${options.filter(p=>p.group===group).map(p=>`<label class="selection-item" data-search="${esc(normalize(p.name))}"><span>${esc(p.name)}</span><input type="checkbox" data-pick-key="${p.key}" ${selected.includes(p.key)?'checked':''}></label>`).join('')}</section>`).join('')}</div><p id="picker-empty" class="fine" hidden>No matches.</p>`,`<span id="picker-count" role="status"></span><button data-close>Cancel</button><button class="primary" data-pick-apply>Apply</button>`);
+ picker={type,selected:new Set(selected),options};updatePicker();
+}
+function updatePicker(){
+ if(!picker)return;
+ $('#picker-count').textContent=`${picker.selected.size} selected`;
+ $('[data-pick-apply]').disabled=picker.selected.size===0;
+ document.querySelectorAll('[data-pick-key]').forEach(input=>input.checked=picker.selected.has(input.dataset.pickKey));
+}
+function filterPicker(){
+ const query=normalize($('#picker-search').value.trim());let visible=0;
+ document.querySelectorAll('.selection-item').forEach(label=>{label.hidden=!label.dataset.search.includes(query);if(!label.hidden)visible++;});
+ document.querySelectorAll('.selection-group').forEach(group=>group.hidden=![...group.querySelectorAll('.selection-item')].some(label=>!label.hidden));
+ $('#picker-empty').hidden=visible!==0;
+}
 function info(category){
  const row=populationRows().find(r=>r.category===category);if(!row)return;
  const p=place();let text;
@@ -89,6 +117,14 @@ document.addEventListener('click',async event=>{
  if(b.matches('[data-view]')){state.view=b.dataset.view;revealed.clear();render();}
  if(b.matches('[data-switch-explore]')){state.view='phrase';render();}
  if(b.matches('[data-settings]'))settings();if(b.matches('[data-sources]'))sources();if(b.matches('[data-share]'))share();if(b.matches('[data-locate]'))locate();
+ if(b.matches('[data-pick]'))chooseSet(b.dataset.pick);
+ if(b.matches('[data-pick-all]')&&picker){picker.selected=new Set(picker.options.map(p=>p.key));updatePicker();}
+ if(b.matches('[data-pick-clear]')&&picker){picker.selected.clear();updatePicker();}
+ if(b.matches('[data-pick-apply]')&&picker?.selected.size){
+  const values=picker.options.filter(p=>picker.selected.has(p.key)).map(p=>p.key);
+  if(picker.type==='languages'){state.customLanguages=values;state.count='custom';}else{state.customPhrases=values;state.phrases='custom';}
+  close();revealed.clear();render();
+ }
  if(b.matches('[data-close]'))close();if(b.matches('[data-library]'))library();if(b.matches('[data-library-language]'))libraryLanguage(b.dataset.libraryLanguage);
  if(b.matches('[data-category]'))info(b.dataset.category);
  if(b.matches('[data-theme]')){state.theme=b.dataset.theme;render();$('#modal-body').querySelectorAll('[data-theme]').forEach(n=>n.setAttribute('aria-pressed',String(n===b)));}
@@ -103,8 +139,10 @@ document.addEventListener('click',async event=>{
  if(b.matches('[data-confirm-reset]')){localStorage.removeItem(storeKey);location.href=location.pathname;}
  if(!event.target.closest('.location-search'))$('#suggestions').hidden=true;
 });
-document.addEventListener('change',e=>{if(e.target.matches('[data-setting]')){state[e.target.dataset.setting]=e.target.checked;render();}if(e.target.id==='speech-rate'){state.rate=Number(e.target.value);persist();}});
-$('#language-count').onchange=e=>{state.count=Number(e.target.value);render();};$('#phrase-count').onchange=e=>{state.phrases=Number(e.target.value);render();};
+document.addEventListener('change',e=>{if(e.target.matches('[data-pick-key]')&&picker){const key=e.target.dataset.pickKey;if(e.target.checked)picker.selected.add(key);else picker.selected.delete(key);updatePicker();}if(e.target.matches('[data-setting]')){state[e.target.dataset.setting]=e.target.checked;render();}if(e.target.id==='speech-rate'){state.rate=Number(e.target.value);persist();}});
+document.addEventListener('input',e=>{if(e.target.id==='picker-search')filterPicker();});
+$('#language-count').onchange=e=>{if(e.target.value==='custom'){e.target.value=String(state.count);chooseSet('languages');}else{state.count=Number(e.target.value);render();}};
+$('#phrase-count').onchange=e=>{if(e.target.value==='custom'){e.target.value=String(state.phrases);chooseSet('phrases');}else{state.phrases=Number(e.target.value);render();}};
 $('#location').addEventListener('input',search);$('#location').addEventListener('focus',()=>$('#location').select());
 $('#location').addEventListener('keydown',e=>{if(e.key==='Escape')$('#suggestions').hidden=true;if(e.key==='ArrowDown'){e.preventDefault();$('#suggestions button')?.focus();}if(e.key==='Enter'){e.preventDefault();$('#suggestions button')?.click();}});
 $('#suggestions').addEventListener('keydown',e=>{if(!['ArrowDown','ArrowUp','Escape'].includes(e.key))return;e.preventDefault();if(e.key==='Escape'){$('#suggestions').hidden=true;$('#location').focus();return;}const buttons=[...$('#suggestions').querySelectorAll('button')],i=buttons.indexOf(document.activeElement);buttons[(i+(e.key==='ArrowDown'?1:-1)+buttons.length)%buttons.length]?.focus();});

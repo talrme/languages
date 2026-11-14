@@ -8,11 +8,15 @@ Metro Lines is the production design. The staging gallery and other designs have
 
 ## Using The App
 
-Search a city, state or country. Oakland opens initially, with English hidden, five languages and three phrases. **By language** is the first and default view; switch to By phrase or Saved whenever you like. Choose 5, 8, 10 or All languages, and 3, 5 or 8 phrases. Every location offers at least ten individual languages, with no grouped placeholders or empty translations. The independent All languages library contains 36 phrasebooks.
+Search a city, state or country. Oakland opens initially, with English hidden, five languages and three phrases. **By language** is the first and default view; switch to By phrase or Saved whenever you like. Languages offers 5, 8, 10, 15, 20, 25, 30 or All. Phrases offers 3, 5, 8, 10, 15, 20, 30, 40 or 50. Every location offers at least ten individual languages, with no grouped placeholders or empty translations. The independent All languages library contains 36 phrasebooks, each with 50 words and phrases.
 
-The initial phrases are Thank you, Hello and Goodbye. More phrases adds Please, Excuse me, Sorry, Yes and No. Tap wording for context; speaker buttons use matching voices available on your device. Missing voices are disabled, never replaced with an unrelated language. Pronunciation, accents and offline speech depend on your phone and its voice services.
+The initial phrases are Thank you, Hello and Goodbye. Expanded choices cover politeness, greetings, conversation, understanding, food/drink, directions, time and numbers. Select **Choose…** in either menu for a searchable checklist with All/Clear and an Apply button. After applying, the menu shows how many you picked; its adjacent sliders icon reopens your selection. Cancel, X, Escape and outside taps discard uncommitted changes; at least one item is required. Your last custom set is remembered even while using quick counts.
 
-Bookmark phrases and use Practice to hide translations until tapped. Settings apply immediately and stay on this device: location, view, counts, bookmarks, English visibility, romanization, speech speed, animations and palette. Existing staging bookmarks/settings are preserved; promotion switches older installs to By language once, after which your view choice is remembered. There is no account, backend or cross-device sync.
+Custom languages are an explicit personal selection, independent of local ranking and the automatic Hide English filter. Selecting English explicitly includes it. Custom sets stay selected when changing location; only their supported local percentages change. Select a numeric count or All to return to automatic location-informed ordering. Chosen phrases remain in phrasebook order and work in both views and practice; the independent library always offers all 50. Bookmarks are independent of display filters.
+
+Tap wording for context; speaker buttons use matching voices available on your device. Missing voices are disabled, never replaced with an unrelated language. Pronunciation, accents and offline speech depend on your phone and its voice services. Romanization is available for some entries, not universally for all 50. Number words are standalone learning forms, not rules for counting every kind of object. These independently assembled forms are not a substitute for fluent-speaker review, especially for gender, formality or high-stakes use.
+
+Bookmark phrases and use Practice to hide translations until tapped. Settings apply immediately and stay on this device: location, view, counts, applied custom sets, bookmarks, English visibility, romanization, speech speed, animations and palette. Existing staging bookmarks/settings are preserved; promotion switches older installs to By language once, after which your view choice is remembered. There is no account, backend or cross-device sync. Shared links carry the location, not your personal custom sets.
 
 **About languages spoken here**, underneath the location, explains the selection and sources. Tap a language's percentage or information icon for its specific basis. The location arrow requests device location only when tapped, proposes a nearby covered U.S. city with its distance, and requires confirmation. Unlisted international cities may offer an explicitly labeled country overview; other places need a state/country search. Coordinates are processed locally, not saved or uploaded by this app; browser/OS location services may have their own network activity.
 
@@ -38,6 +42,7 @@ References:
 - [Census place coordinates](https://www2.census.gov/geo/docs/maps-data/data/gazetteer/2024_Gazetteer/2024_Gaz_place_national.zip)
 - [Australia 2021 Census](https://www.abs.gov.au/statistics/people/people-and-communities/cultural-diversity-census/2021)
 - [Wikivoyage phrasebooks](https://en.wikivoyage.org/wiki/Phrasebooks), including reference checks for [Afrikaans](https://en.wikivoyage.org/wiki/Afrikaans_phrasebook), [Zulu](https://en.wikivoyage.org/wiki/Zulu_phrasebook) and [Xhosa](https://en.wikivoyage.org/wiki/Xhosa_phrasebook).
+- [Omniglot: Xhosa context reference](https://www.omniglot.com/language/phrases/xhosa.php) for greetings, singular/plural address and common expressions. This app is not a scraped phrasebook or a certified translation collection.
 
 ## Development
 
@@ -54,5 +59,6 @@ The service worker caches successful same-origin GETs and uses network-first/off
 - `node tests/selection.mjs`: every location has at least ten unique non-English languages with complete phrases; source totals are preserved and supplemental selections have no invented percentages.
 - `node tests/browser.cjs`: self-hosted port 5298, Chrome/Playwright; tests promotion/migration, search, language/phrase views, counts, bookmarks/reload, simulated speech, practice, source details, dialogs, sharing/QR and all palettes at 320/390/1280px. Screenshots go to `/tmp`.
 - `node tests/offline.cjs`: self-hosted port 5299; verifies the production subpath, service-worker caching, offline reload and offline country search.
+- `node tests/customization.cjs`: self-hosted port 5300; verifies all 50 words/phrases, intermediate language counts, custom checklists, search, cancel/apply/empty safeguards, persistence, explicit English selection, both views and all palettes at 320/390/1280px. Also exercises the maximum 35 non-English languages × 50 phrases.
 
 Browser tests require Playwright and Chrome. Simulated voices do not establish native-phone pronunciation quality. Keep this README and AI_README updated together.

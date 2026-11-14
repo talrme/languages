@@ -1,6 +1,9 @@
+import {extraDefinitions,extraTranslations} from './extended-phrases.js';
 // Common polite forms, not literal word-for-word equivalents. Romanizations are reading aids.
-export const phraseKeys=['thanks','hello','goodbye','please','excuse','sorry','yes','no'];
-export const phraseNames={thanks:'Thank you',hello:'Hello',goodbye:'Goodbye',please:'Please',excuse:'Excuse me',sorry:'Sorry',yes:'Yes',no:'No'};
+const basics=[['thanks','Thank you'],['hello','Hello'],['goodbye','Goodbye'],['please','Please'],['excuse','Excuse me'],['sorry','Sorry'],['yes','Yes'],['no','No']];
+export const phraseDefinitions=[...basics.map(([key,name])=>({key,name,group:'Essentials'})),...extraDefinitions.map(([key,name,group])=>({key,name,group}))];
+export const phraseKeys=phraseDefinitions.map(p=>p.key);
+export const phraseNames=Object.fromEntries(phraseDefinitions.map(p=>[p.key,p.name]));
 export const languageRows=[
  ['en','English','en-US',['Thank you','Hello','Goodbye','Please','Excuse me','Sorry','Yes','No']],
  ['es','Spanish','es-MX',['Gracias','Hola','Adiós','Por favor','Disculpe','Lo siento','Sí','No']],
@@ -39,6 +42,10 @@ export const languageRows=[
  ['zu','Zulu','zu-ZA',['Ngiyabonga','Sawubona','Hamba kahle','Ngiyacela','Uxolo','Ngiyaxolisa','Yebo','Cha']],
  ['xh','Xhosa','xh-ZA',['Enkosi','Molo','Hamba kakuhle','Ndicela','Uxolo','Ndixolele','Ewe','Hayi']]
 ];
-export const languages=Object.fromEntries(languageRows.map(([id,name,voice,phrases])=>[id,{id,name,voice,phrases:Object.fromEntries(phraseKeys.map((key,i)=>{const [native,roman='']=phrases[i].split('|');return [key,{native,roman}];}))}]));
+export const languages=Object.fromEntries(languageRows.map(([id,name,voice,phrases])=>{
+ const values=[...phrases,...extraTranslations[id]];
+ if(values.length!==phraseKeys.length)throw Error(`Incomplete phrasebook: ${id}`);
+ return [id,{id,name,voice,phrases:Object.fromEntries(phraseKeys.map((key,i)=>{const [native,roman='']=values[i].split('|');return [key,{native,roman}];}))}];
+}));
 const southernGreetingNotes={zu:'Sawubona greets one person; Sanibonani greets several. Hamba kahle is said to someone leaving; Sala kahle to someone staying.',xh:'Molo greets one person; Molweni greets several. Hamba kakuhle is said to someone leaving; Sala kakuhle to someone staying.'};
 export const notes={...southernGreetingNotes,zh:'Mandarin example. Census combines Mandarin, Cantonese and other Chinese languages; the percentage is not Mandarin alone.',yue:'Jyutping numbers indicate tones. 多謝 is for gifts or favors; 唔該 is commonly used to thank someone for service.',pt:'Obrigado is typically used by masculine speakers; obrigada by feminine speakers.',ko:'Polite forms. This goodbye is said to someone leaving; say 안녕히 계세요 when you leave someone staying.',ar:'General Modern Standard Arabic forms; local dialects vary. Some polite forms vary with the person addressed.',he:'Common everyday forms. Shalom can also mean goodbye.',hi:'General polite forms; greetings vary by community.',pa:'A common Punjabi greeting, particularly in Sikh communities. Other greetings vary by community.',bn:'Nomoshkar is one common greeting; assalamu alaikum is also widely used.',ja:'Polite thank-you. Sayōnara can suggest a longer goodbye; またね (mata ne) is a casual “see you.”',th:'Politeness particles such as ครับ or ค่ะ are often added according to the speaker.',ta:'The goodbye means “I will go and return.”',tl:'Add po for politeness where appropriate. Paki- is often attached to a request rather than used alone.',vi:'Pronouns and polite particles depend on age and relationship. Vâng is a polite northern “yes.”',sw:'Hujambo is a greeting to one person; greetings and responses vary.',ur:'The greeting is common in Muslim communities; greetings vary.',default:'Common learning forms. Context, region, formality and the people speaking can change the best wording. Romanization is approximate, not a phonetic transcription.'};

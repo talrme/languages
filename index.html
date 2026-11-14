@@ -6,7 +6,7 @@
   <meta name="description" content="A pocket phrasebook for the languages around you.">
   <meta property="og:title" content="Languages"><meta property="og:description" content="Useful words in the languages around you."><meta property="og:image" content="https://talrme.github.io/languages/assets/icon-512.png">
   <link rel="icon" type="image/png" href="assets/icon-192.png"><link rel="apple-touch-icon" href="assets/icon-192.png"><link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="shared/styles.css?v=metro-2">
+  <link rel="stylesheet" href="shared/styles.css?v=phrase-50">
 </head>
 <body data-design="7" data-theme="design">
 <main class="app">
@@ -15,12 +15,19 @@
   <div id="app-content" hidden>
     <div class="search-band"><div class="location-search"><i data-lucide="map-pin"></i><input id="location" type="search" placeholder="City, state or country" aria-label="Search for a city, state or country" autocomplete="off" aria-controls="suggestions"><button data-locate title="Use my location" aria-label="Use my location"><i data-lucide="locate-fixed"></i></button><div id="suggestions" class="suggestions" role="listbox" aria-label="Matching locations" hidden></div></div></div>
     <div class="place-summary"><div><h2 id="place-label"></h2><button class="data-info" data-sources title="How these languages were chosen"><i data-lucide="info"></i><span id="data-label">About languages spoken here</span><i data-lucide="chevron-right"></i></button></div><small id="english-label"></small></div>
-    <div class="tools"><nav class="view-tabs" role="tablist" aria-label="Organize phrases"><button role="tab" data-view="language" aria-selected="true">By language</button><button role="tab" data-view="phrase" aria-selected="false">By phrase</button><button role="tab" data-view="saved" aria-selected="false">Saved</button></nav><div class="display-options"><label>Languages<select id="language-count"><option value="5">5</option><option value="8">8</option><option value="10">10</option><option value="99">All</option></select></label><label>Phrases<select id="phrase-count"><option value="3">3</option><option value="5">5</option><option value="8">8</option></select></label><button class="practice-button" id="practice" aria-pressed="false"><i data-lucide="sparkles"></i>Practice</button></div></div>
+    <div class="tools">
+      <nav class="view-tabs" role="tablist" aria-label="Organize phrases"><button role="tab" data-view="language" aria-selected="true">By language</button><button role="tab" data-view="phrase" aria-selected="false">By phrase</button><button role="tab" data-view="saved" aria-selected="false">Saved</button></nav>
+      <div class="display-options">
+        <div class="count-control"><label>Languages<select id="language-count"><option value="5">5</option><option value="8">8</option><option value="10">10</option><option value="15">15</option><option value="20">20</option><option value="25">25</option><option value="30">30</option><option value="99">All</option><option value="custom">Choose…</option></select></label><button class="edit-selection" data-pick="languages" title="Edit chosen languages" aria-label="Edit chosen languages" hidden><i data-lucide="sliders-horizontal"></i></button></div>
+        <div class="count-control"><label>Phrases<select id="phrase-count"><option value="3">3</option><option value="5">5</option><option value="8">8</option><option value="10">10</option><option value="15">15</option><option value="20">20</option><option value="30">30</option><option value="40">40</option><option value="50">50</option><option value="custom">Choose…</option></select></label><button class="edit-selection" data-pick="phrases" title="Edit chosen phrases" aria-label="Edit chosen phrases" hidden><i data-lucide="sliders-horizontal"></i></button></div>
+        <button class="practice-button" id="practice" aria-pressed="false"><i data-lucide="sparkles"></i>Practice</button>
+      </div>
+    </div>
     <div id="results" role="region" aria-label="Translations"></div>
     <footer class="footer"><button data-settings><i data-lucide="settings"></i>Settings</button><button data-library><i data-lucide="book-open"></i>All languages</button><button data-share><i data-lucide="share-2"></i>Save / Share</button><button data-sources><i data-lucide="info"></i>Sources</button></footer>
   </div>
 </main>
 <dialog id="modal"><header class="modal-header"><h2 id="modal-title"></h2><button data-close aria-label="Close"><i data-lucide="x"></i></button></header><div id="modal-body"></div><footer id="modal-footer"></footer></dialog>
 <div id="toast" role="status" hidden></div>
-<script src="shared/vendor/lucide.min.js"></script><script src="shared/vendor/qrcode.min.js"></script><script type="module" src="shared/app.js?v=metro-2"></script>
+<script src="shared/vendor/lucide.min.js"></script><script src="shared/vendor/qrcode.min.js"></script><script type="module" src="shared/app.js?v=phrase-50"></script>
 </body></html>

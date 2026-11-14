@@ -4,7 +4,7 @@ Owner: Tal. Repo https://github.com/talrme/languages; live https://talrme.github
 
 ## Product Preferences
 
-Phone first, compact Languages header and globe, location search, then useful phrases. No marketing hero, subtitle or giant counts. Default Oakland, English hidden, five individual languages, three phrases (Thank you/Hello/Goodbye), **By language first/default**. By phrase reorganizes the same data; Saved is local bookmarks. Language count 5/8/10/All; phrase count 3/5/8. Independent All languages library and Practice mode remain.
+Phone first, compact Languages header and globe, location search, then useful phrases. No marketing hero, subtitle or giant counts. Default Oakland, English hidden, five individual languages, three phrases (Thank you/Hello/Goodbye), **By language first/default**. By phrase reorganizes the same data; Saved is local bookmarks. Language counts 5/8/10/15/20/25/30/All; phrase counts 3/5/8/10/15/20/30/40/50. Both menus have Choose… for locally persisted custom sets. Independent All languages library and Practice mode remain.
 
 Never display Multiple languages, Other Asian/Pacific or another grouped placeholder as a language. Every supported location must offer at least ten named language choices with complete phrases. Approximate learning picks are acceptable; fake demographic percentages are not. The explicit blue About languages spoken here link below the location explains this. Each language's percentage/info button gives provenance.
 
@@ -15,7 +15,8 @@ Patterns borrowed from Huck/Preferences/World Flavors: immediate local settings,
 - `tools/page.html`: canonical production HTML. Run `node tools/build.mjs` after changes; generated `index.html`, manifest and service worker are checked in. No staging generation.
 - `shared/app.js`: DOM rendering, interaction, state, search, geolocation, sources, practice/bookmarks, matching device voices and share dialogs. Only data fetch is local `data/us.json`.
 - `shared/selection.js`: pure `selectLanguages(place,snapshot,locations)` builds unique individual language choices. Local Census rows are traversed in source rank order; individual estimates retain numbers, recognizable combined categories yield named examples without numbers. City lists use parent-state/national additions, country lists start with curated IDs, then regional/wider suggestions fill the list. Every row identifies estimate/local-example/regional/country/suggestion provenance. No mutation of raw snapshot.
-- `shared/phrases.js`: **36** languages, eight common phrases each, optional romanization and context notes. Unicode is intentional. Includes Afrikaans/Zulu/Xhosa for useful South Africa coverage. No certified translation claim.
+- `shared/phrases.js`: **36** languages, **50** words/phrases each. Stable original eight keys preserved; exports phraseDefinitions (key/name/group), phraseKeys, phraseNames and combined language dictionaries. Checks complete array lengths. Optional romanization and context notes; not every new phrase has romanization. Unicode is intentional. No certified translation claim.
+- `shared/extended-phrases.js`: 42 additional definitions and independently assembled translation arrays, indexed by the same definition order. Greetings, conversation, understanding, getting around, food/drink, time, numbers. Any edit must keep all 36 arrays aligned; pure tests require exactly 50 complete entries. Number forms/greetings vary by context; don't claim fluent validation.
 - `shared/countries.js`: 50 curated country/territory profiles, generally not demographic ranks; Australia has sourced 2021 home-language shares.
 - `shared/styles.css`: Metro Lines composition (`data-design=7`), generic controls/accessibility, phone adaptations and four palette overrides. Other design CSS removed.
 - `tools/fetch-census.py`: explicit official-bulk-file snapshot regeneration, no API key. Census query endpoints required a key and Census Reporter was unavailable; neither is used at runtime.
@@ -24,7 +25,8 @@ Patterns borrowed from Huck/Preferences/World Flavors: immediate local settings,
 - `tests/selection.mjs`: every-place pure data/selection checks.
 - `tests/browser.cjs`: isolated server on5298, Playwright/Chrome, mock voices, no external data writes. Phone/desktop screenshots in `/tmp`.
 - `tests/offline.cjs`: isolated server on5299, real service-worker installation, subpath and offline navigation/search checks.
-- `sw.js`: generated network-first same-origin GET cache, offline fallback. Promotion uses `languages-metro-v2`, removes older Languages caches on activation. Bump cache version when needed; visit/reload online before offline reliance.
+- `tests/customization.cjs`: isolated server on5300; maximum-size view, count presets, custom checklists/filtering/all/clear/apply/cancel, persistence, explicit English, both views, every palette and phone/desktop overflow.
+- `sw.js`: generated network-first same-origin GET cache, offline fallback. Uses `languages-phrases-v3`, removes older Languages caches on activation. Bump cache version when needed; visit/reload online before offline reliance.
 
 ES modules, no framework. Vendored Lucide/QRCode retain original licenses. Paths must work under GitHub Pages `/languages/`; share/install point to root app, not staging.
 
@@ -38,7 +40,9 @@ Combined Chinese maps to Mandarin/Cantonese learning choices, French/Haitian/Caj
 
 ## State, Privacy, Audio
 
-Keep localStorage key `languages-v1` to preserve users' settings/bookmarks. `layoutVersion:2` one-time migration resets older view preferences to By language; later choices persist normally. Obsolete example-category preferences are ignored. Local state includes location/view/counts/favorites, English/romanization visibility, palette, rate and animation preference. Practice/reveals are session-only. No cross-phone sync. Share includes selected-place ID, not private bookmarks. Done only closes settings; controls save immediately.
+Keep localStorage key `languages-v1` to preserve users' settings/bookmarks. `layoutVersion:2` one-time migration resets older view preferences to By language; later choices persist normally. Obsolete example-category preferences are ignored. Local state includes location/view/counts/favorites, customLanguages/customPhrases arrays, English/romanization visibility, palette, rate and animation preference. Custom arrays are deduplicated/validated at startup. count/phrases can be the string 'custom'; don't blindly coerce them to numbers. Empty custom sets revert safely at startup.
+
+Checklist edits are transactional: picker holds a draft Set, Apply saves a nonempty selection, Cancel/X/Escape/backdrop discard the draft. Search filters visibility without dropping hidden selections. All/Clear apply to the full checklist. Previously applied custom sets are restored on reopening, even after using a numeric preset. Custom languages are alphabetically ordered and remain the same across locations; rows look up current place provenance without inventing percentages. Explicit English selection overrides automatic Hide English. Numeric/All counts restore local-informed ranking. Custom phrases keep canonical phrase order. The adjacent sliders buttons reopen active custom sets; maintain phone-sized toolbar dimensions. Practice/reveals are session-only. No cross-phone sync. Share includes selected-place ID, not private bookmarks/custom sets. Done only closes settings; ordinary settings save immediately.
 
 Geolocation only after explicit click. Process on-device, show nearby covered U.S. city/distance and require confirmation; don't claim nearest city is exact location. Coordinates not persisted/uploaded by app; browser/OS provider may use network. Denial leaves search working.
 

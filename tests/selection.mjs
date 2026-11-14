@@ -5,6 +5,11 @@ import {countries} from '../shared/countries.js';
 import {languages,phraseKeys} from '../shared/phrases.js';
 const snapshot=JSON.parse(fs.readFileSync(new URL('../data/us.json',import.meta.url))),locations=[...snapshot.locations,...countries];
 assert.equal(new Set(locations.map(p=>p.id)).size,locations.length);
+assert.equal(phraseKeys.length,50);assert.equal(new Set(phraseKeys).size,50);
+for(const language of Object.values(languages)){
+ assert.equal(Object.keys(language.phrases).length,50,language.name);
+ for(const phrase of Object.values(language.phrases))assert(phrase.native.trim()&&!/undefined|null/.test(phrase.native),language.name);
+}
 for(const place of locations){
  const rows=selectLanguages(place,snapshot,locations),nonEnglish=rows.filter(row=>row.id!=='en');
  assert(nonEnglish.length>=10,place.name);assert.equal(new Set(rows.map(row=>row.id)).size,rows.length);
