@@ -1,47 +1,49 @@
 # Languages: AI Working Context
 
-Owner: Tal. Repo https://github.com/talrme/languages; Pages https://talrme.github.io/languages/ . All personal sites belong in `/Users/talg/Desktop/Websites For Fun` unless explicitly directed elsewhere. The owner requested TEN extremely different fully functional staging designs before selecting a production design. Do not promote one or delete staging until instructed. Root is the gallery, staging/1 through staging/10 are apps.
+Owner: Tal. Repo https://github.com/talrme/languages; live https://talrme.github.io/languages/ . All personal websites belong in `/Users/talg/Desktop/Websites For Fun` unless directed otherwise. Owner selected **Metro Lines (former staging 7)** for production and explicitly requested deletion of other designs/staging. Do not recreate a gallery. Commit/push normal completed changes unless the owner asks for local-only work.
 
-## Product And Preferences
+## Product Preferences
 
-Phone first. A small Languages header with a globe, location search and optional location permission, then immediate useful phrases. No marketing hero, long intro, gratuitous subtitle or large counts. Default Oakland, English hidden, five language categories, three phrases (Thank you/Hello/Goodbye), By phrase. By language reorganizes the same content; Saved is local bookmarks. More phrases and languages are explicit selectors. All languages opens the full phrase library independently of local rankings. Practice hides native/romanized text until tapped.
+Phone first, compact Languages header and globe, location search, then useful phrases. No marketing hero, subtitle or giant counts. Default Oakland, English hidden, five individual languages, three phrases (Thank you/Hello/Goodbye), **By language first/default**. By phrase reorganizes the same data; Saved is local bookmarks. Language count 5/8/10/All; phrase count 3/5/8. Independent All languages library and Practice mode remain.
 
-Borrowed patterns from Huck, Preferences and World Flavors: local settings, instant palette changes, bottom Settings and Save / Share, PNG icon and phone installation directions, QR with the selected place URL, solid responsive dialogs with rotating X/outside click/Escape/Done dismissal, accessible controls and reduced-motion support. No giant side-scrolling tables on phones. Design 8 intentionally uses horizontally snapping phrase cards with explicit phrase navigation. No backend/account needed. Do not introduce Firebase or APIs for ordinary use.
+Never display Multiple languages, Other Asian/Pacific or another grouped placeholder as a language. Every supported location must offer at least ten named language choices with complete phrases. Approximate learning picks are acceptable; fake demographic percentages are not. The explicit blue About languages spoken here link below the location explains this. Each language's percentage/info button gives provenance.
+
+Patterns borrowed from Huck/Preferences/World Flavors: immediate local settings, four palettes, bottom Settings and Save / Share, globe PNG for favicon/phone, QR/share selected-place URL, solid dialogs with X/outside-tap/Escape/Done dismissal, keyboard access, reduced motion. No horizontal page overflow on phones. No backend/account.
 
 ## Architecture
 
-- `shared/app.js`: shared app, rendering and state; data fetched only from repository `data/us.json`; no remote data or geocoding requests at runtime.
-- `shared/phrases.js`: 33 language records, eight independently assembled common phrases each, romanization and important context notes; native text is intentionally Unicode. Not a certified translation database.
-- `shared/countries.js`: mostly curated learning selections, NOT demographic rankings; Australia has sourced 2021 home-language percentages. Do not add invented percentages, unsupported ranks, or national figures mislabeled as city figures.
-- `shared/designs.js`: 10 named design descriptors.
-- `shared/styles.css`: base accessibility/responsiveness/components and strong per-design composition/typography overrides; explicit palettes afterward. Do not flatten designs into recolors.
-- `tools/build.mjs`: canonical page template and generator; edits to generated staging/index pages must be made here and rebuilt. Does not touch app/data/CSS.
-- `tools/fetch-census.py`: explicit bulk-data regeneration, standard-library parsing. Census query endpoints required an API key at build time; official bulk files avoid that. Census Reporter was unavailable and is NOT used. No key required.
-- `tools/icons.cjs`: code-drawn globe PNG variants; Playwright renders canvas, no remote image dependency.
-- `tests/browser.cjs`: self-hosting isolated checks, mock device voices. Generates previews/*.png from clean initial screens. Other screenshots go in /tmp. No real services or data writes.
-- `tools/serve.cjs`: port 5198 local server, supports `/` and `/languages/`.
-- `sw.js`: generated network-first same-origin GET cache with offline fallback. Initial navigation precedes worker registration; revisit/reload online to cache the current page. No promise of all designs/voices offline after one visit. Bump cache version for future incompatible changes, avoid persistent stale data.
+- `tools/page.html`: canonical production HTML. Run `node tools/build.mjs` after changes; generated `index.html`, manifest and service worker are checked in. No staging generation.
+- `shared/app.js`: DOM rendering, interaction, state, search, geolocation, sources, practice/bookmarks, matching device voices and share dialogs. Only data fetch is local `data/us.json`.
+- `shared/selection.js`: pure `selectLanguages(place,snapshot,locations)` builds unique individual language choices. Local Census rows are traversed in source rank order; individual estimates retain numbers, recognizable combined categories yield named examples without numbers. City lists use parent-state/national additions, country lists start with curated IDs, then regional/wider suggestions fill the list. Every row identifies estimate/local-example/regional/country/suggestion provenance. No mutation of raw snapshot.
+- `shared/phrases.js`: **36** languages, eight common phrases each, optional romanization and context notes. Unicode is intentional. Includes Afrikaans/Zulu/Xhosa for useful South Africa coverage. No certified translation claim.
+- `shared/countries.js`: 50 curated country/territory profiles, generally not demographic ranks; Australia has sourced 2021 home-language shares.
+- `shared/styles.css`: Metro Lines composition (`data-design=7`), generic controls/accessibility, phone adaptations and four palette overrides. Other design CSS removed.
+- `tools/fetch-census.py`: explicit official-bulk-file snapshot regeneration, no API key. Census query endpoints required a key and Census Reporter was unavailable; neither is used at runtime.
+- `tools/icons.cjs`: canvas-drawn PNG globe variants, no remote image dependency.
+- `tools/serve.cjs`: port 5198, serves `/` and `/languages/`.
+- `tests/selection.mjs`: every-place pure data/selection checks.
+- `tests/browser.cjs`: isolated server on5298, Playwright/Chrome, mock voices, no external data writes. Phone/desktop screenshots in `/tmp`.
+- `tests/offline.cjs`: isolated server on5299, real service-worker installation, subpath and offline navigation/search checks.
+- `sw.js`: generated network-first same-origin GET cache, offline fallback. Promotion uses `languages-metro-v2`, removes older Languages caches on activation. Bump cache version when needed; visit/reload online before offline reliance.
 
-ES modules, no framework/runtime dependency installation, vendored Lucide and QRCode (copied from Preferences, retain their license headers). Existing filenames and paths are relative for GitHub Pages subpath safety. package.json type module; tools/tests CJS use .cjs.
+ES modules, no framework. Vendored Lucide/QRCode retain original licenses. Paths must work under GitHub Pages `/languages/`; share/install point to root app, not staging.
 
-## Data Integrity (Important)
+## Data Integrity
 
-`data/us.json` has actual 2020–2024 ACS estimates for 1,807 geographies, all unique IDs. City source C16001, state/national source B16001. The build excludes non-total geography components (GEO_ID positions 3:7 must equal 0000), avoiding duplicate state/component overwrites. Only city records with age-5+ denominator >=25,000 are bundled. Coordinates are Gazetteer internal points (not user location). All category counts must sum to each row's denominator; tests enforce this, sort and unique IDs.
+Snapshot has actual ACS 2020–2024 estimates for **1,807 unique U.S. geographies**. City C16001 and state/national B16001. Builder excludes non-total geography components (`GEO_ID[3:7] == 0000`) to avoid duplicate state overwrites. Cities require age-5+ denominator >=25,000. Gazetteer coordinates are place internal points, not users.
 
-Snapshot categories are keys like `3` (B16001 Spanish) or `c3` (C16001 Spanish). Arrays are [categoryCode, estimatedCount, 90%-confidenceCountMOE]. Percent = count / original age-5+ total *100; hiding English never changes denominator. B16001 English is English ONLY at home, not every English speaker. Close ranks have sampling uncertainty. No current-day/live data claims.
+Raw arrays are `[categoryCode,estimate,90%-confidence count MOE]`; keys include `c3` (city Spanish) and `3` (detailed Spanish). Raw category totals must sum to denominator; never alter them to fit the phrase UI. Individual local percentage = count/original denominator*100. Hiding English never renormalizes. English means English only at home. Close estimates may not have statistically reliable rank order.
 
-City categories often combine languages. `categoryMap` can provide a clearly labeled example (Mandarin for combined Chinese, French for French/Haitian/Cajun, etc.); that percentage is NOT a language-specific estimate. Categories without a mapping intentionally display Multiple languages; user may select a learning example, with an explicit warning, not reassign demographic counts. Preserve source category labels in details. Country pages show Learning selection · not ranked and no percentages unless sourced. No silent country fallback for international cities: search result explicitly says country overview. Canada/UK selections are not country-wide Census figures. South Africa has only English currently in the library, so with English hidden it correctly offers the general library rather than inventing indigenous-language coverage.
+Combined Chinese maps to Mandarin/Cantonese learning choices, French/Haitian/Cajun to French/Haitian Creole, etc., with no falsely attributed counts. Unsupported broad Other categories are skipped. Supplemented state/national/country/general learning picks must not acquire local percentages. Info panels explain basis. Country selections are approximate learning lists, not top-ten statistics. Don't silently label country data as city figures. Phrase context matters (dialect/formality/gender, yes/no variations); review new forms with references and ideally a fluent speaker. Don't conflate languages with national flags.
 
-Source files and precise limitations are in README and Sources & coverage. Phrase forms must distinguish dialect/formality/gender and context where relevant; no universal claims for yes/no, greetings or please. New phrases should be reviewed against a reliable language reference and ideally a fluent speaker. Do not conflate a language with a country's flag.
+## State, Privacy, Audio
 
-## State, Privacy And Audio
+Keep localStorage key `languages-v1` to preserve users' settings/bookmarks. `layoutVersion:2` one-time migration resets older view preferences to By language; later choices persist normally. Obsolete example-category preferences are ignored. Local state includes location/view/counts/favorites, English/romanization visibility, palette, rate and animation preference. Practice/reveals are session-only. No cross-phone sync. Share includes selected-place ID, not private bookmarks. Done only closes settings; controls save immediately.
 
-One localStorage namespace `languages-v1`, shared across designs on the same origin: selected place/view, counts, favorites, examples, English/romanization visibility, palette, speech rate and animations. Practice/reveals are session-only. No cross-phone sync. Changing a palette applies immediately; Done only closes. Share URL includes the current staging path and place ID. Install manifest starts that staging design; saved place comes from local state. Bookmarks are not in share links.
+Geolocation only after explicit click. Process on-device, show nearby covered U.S. city/distance and require confirmation; don't claim nearest city is exact location. Coordinates not persisted/uploaded by app; browser/OS provider may use network. Denial leaves search working.
 
-Geolocation only on explicit tap. Coordinates are compared to covered U.S. cities on-device, proposal includes distance and needs confirmation. Never silently call nearest city the user's city. Browser/OS may use a location provider; app coordinates are not persisted/uploaded. Denied/unsupported geolocation leaves manual search functional.
+Web Speech uses matching voice, exact locale preferred; Cantonese requires HK/yue, not a Mandarin fallback. Missing voice disables speaker with explanation; voiceschanged updates availability. Device voices may contact their own services. No bundled recordings, TTS backend/key or guarantee of offline voices. Mocked tests cannot establish physical-phone voice quality.
 
-Web Speech: use matching voice, prefer exact locale, otherwise language match (Cantonese requires HK/yue rather than a Mandarin fallback). Missing voice disables speaker with tooltip; voiceschanged refreshes availability. Text only, no audio files/backend/TTS API key. Device may use remote voices; cannot guarantee offline playback or exact pronunciation. Do not mistake mocked audio tests for physical-phone voice QA.
+## Shipping
 
-## Shipping And Follow-Up
-
-Run build, data/browser regressions, inspect actual phone/desktop screenshots, verify no horizontal overflow, keyboard focus/voice availability, palettes and close behavior before pushing. User provided Git repo and enabled Pages, so publish the staging gallery. Final production promotion is a separate approval. Keep README/AI_README current. No default real-data mutation is relevant to this project.
+Keep README and AI_README current. Run build, selection tests, browser tests; inspect phone/desktop screenshots, themes, modal closing and overflow. Test offline changes if touching service worker. No staging directories/previews/design registry should remain. Update All Websites if description/icon/URL changes; bump its data cache query. GitHub Pages is main/root with no secrets or setup required.
