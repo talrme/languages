@@ -1,0 +1,1 @@
+{"name":"languages","private":true,"type":"module","scripts":{"build":"node tools/build.mjs","start":"node tools/serve.cjs","test":"node tests/browser.cjs"}}
