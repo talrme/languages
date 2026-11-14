@@ -39,6 +39,11 @@ const regional={
 export function selectLanguages(p,snapshot,locations){
  const output=[],seen=new Set();
  function add(id,extra={}){if(!languages[id]||seen.has(id))return;seen.add(id);output.push({id,name:languages[id].name,category:id,kind:'suggestion',...extra});}
+ if(p.kind==='world'){
+  for(const [id,worldRank] of p.ranks)add(id,{kind:'worldwide',worldRank});
+  for(const language of Object.values(languages).sort((a,b)=>a.name.localeCompare(b.name)))add(language.id,{kind:'suggestion',sourceName:'Additional library language'});
+  return output;
+ }
  function census(source,local){
   for(const [code,count,moe] of source.values||[]){
    const category=String(code),label=snapshot.categories[category];

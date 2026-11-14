@@ -6,14 +6,14 @@
   <meta name="description" content="A pocket phrasebook for the languages around you.">
   <meta property="og:title" content="Languages"><meta property="og:description" content="Useful words in the languages around you."><meta property="og:image" content="https://talrme.github.io/languages/assets/icon-512.png">
   <link rel="icon" type="image/png" href="assets/icon-192.png"><link rel="apple-touch-icon" href="assets/icon-192.png"><link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="shared/styles.css?v=phrase-50">
+  <link rel="stylesheet" href="shared/styles.css?v=worldwide">
 </head>
 <body data-design="7" data-theme="design">
 <main class="app">
   <header class="topbar"><a class="brand" href="./" aria-label="Languages"><img src="assets/icon-192.png" width="36" height="36" alt=""><h1>Languages</h1></a></header>
   <div id="loading" role="status">Opening your phrasebook…</div>
   <div id="app-content" hidden>
-    <div class="search-band"><div class="location-search"><i data-lucide="map-pin"></i><input id="location" type="search" placeholder="City, state or country" aria-label="Search for a city, state or country" autocomplete="off" aria-controls="suggestions"><button data-locate title="Use my location" aria-label="Use my location"><i data-lucide="locate-fixed"></i></button><div id="suggestions" class="suggestions" role="listbox" aria-label="Matching locations" hidden></div></div></div>
+    <div class="search-band"><div class="location-search"><i data-lucide="map-pin"></i><input id="location" type="search" placeholder="City, state or country" aria-label="Search for a city, state, country or Worldwide" autocomplete="off" aria-controls="suggestions"><button data-locate title="Use my location" aria-label="Use my location"><i data-lucide="locate-fixed"></i></button><div id="suggestions" class="suggestions" role="listbox" aria-label="Matching locations" hidden></div></div><button class="worldwide-button" data-worldwide aria-pressed="false" title="Most spoken languages worldwide"><i data-lucide="globe"></i>Worldwide</button></div>
     <div class="place-summary"><div><h2 id="place-label"></h2><button class="data-info" data-sources title="How these languages were chosen"><i data-lucide="info"></i><span id="data-label">About languages spoken here</span><i data-lucide="chevron-right"></i></button></div><small id="english-label"></small></div>
     <div class="tools">
       <nav class="view-tabs" role="tablist" aria-label="Organize phrases"><button role="tab" data-view="language" aria-selected="true">By language</button><button role="tab" data-view="phrase" aria-selected="false">By phrase</button><button role="tab" data-view="saved" aria-selected="false">Saved</button></nav>
@@ -29,5 +29,5 @@
 </main>
 <dialog id="modal"><header class="modal-header"><h2 id="modal-title"></h2><button data-close aria-label="Close"><i data-lucide="x"></i></button></header><div id="modal-body"></div><footer id="modal-footer"></footer></dialog>
 <div id="toast" role="status" hidden></div>
-<script src="shared/vendor/lucide.min.js"></script><script src="shared/vendor/qrcode.min.js"></script><script type="module" src="shared/app.js?v=phrase-50"></script>
+<script src="shared/vendor/lucide.min.js"></script><script src="shared/vendor/qrcode.min.js"></script><script type="module" src="shared/app.js?v=worldwide"></script>
 </body></html>

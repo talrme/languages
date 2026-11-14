@@ -8,6 +8,8 @@ Phone first, compact Languages header and globe, location search, then useful ph
 
 Never display Multiple languages, Other Asian/Pacific or another grouped placeholder as a language. Every supported location must offer at least ten named language choices with complete phrases. Approximate learning picks are acceptable; fake demographic percentages are not. The explicit blue About languages spoken here link below the location explains this. Each language's percentage/info button gives provenance.
 
+Worldwide is a compact toggle beside search, not another country. First click chooses world mode, second restores state.previousPlace (or Oakland); manual place search still works. Search aliases include global and most spoken languages. Persist/share it with place='worldwide'. Existing English/custom phrase/language preferences remain applicable. Custom sets are explicitly personal, not worldwide ranking; numeric counts/All restore automatic ordering. In world mode hide numeric count options above the supported ranked-language total; if an old numeric count exceeds it, use All.
+
 Patterns borrowed from Huck/Preferences/World Flavors: immediate local settings, four palettes, bottom Settings and Save / Share, globe PNG for favicon/phone, QR/share selected-place URL, solid dialogs with X/outside-tap/Escape/Done dismissal, keyboard access, reduced motion. No horizontal page overflow on phones. No backend/account.
 
 ## Architecture
@@ -18,6 +20,7 @@ Patterns borrowed from Huck/Preferences/World Flavors: immediate local settings,
 - `shared/phrases.js`: **36** languages, **50** words/phrases each. Stable original eight keys preserved; exports phraseDefinitions (key/name/group), phraseKeys, phraseNames and combined language dictionaries. Checks complete array lengths. Optional romanization and context notes; not every new phrase has romanization. Unicode is intentional. No certified translation claim.
 - `shared/extended-phrases.js`: 42 additional definitions and independently assembled translation arrays, indexed by the same definition order. Greetings, conversation, understanding, getting around, food/drink, time, numbers. Any edit must keep all 36 arrays aligned; pure tests require exactly 50 complete entries. Number forms/greetings vary by context; don't claim fluent validation.
 - `shared/countries.js`: 50 curated country/territory profiles, generally not demographic ranks; Australia has sourced 2021 home-language shares.
+- `shared/worldwide.js`: separate world pseudo-place with 23 supported language IDs and actual world ranks, from the 2026 Ethnologue table reproduced at the pinned Wikipedia reference. First/second-language totals, not native-only. Source links/year are bundled; no runtime fetch. Language varieties must match: Modern Standard Arabic, Iranian Persian; don't map Western Punjabi's rank to the Eastern Punjabi phrasebook. No fabricated numbers. selectLanguages returns ranked rows first plus explicit unranked library choices for custom selection; rows() excludes unranked additions in automatic world mode. All means the supported ranking, not every language in the world.
 - `shared/styles.css`: Metro Lines composition (`data-design=7`), generic controls/accessibility, phone adaptations and four palette overrides. Other design CSS removed.
 - `tools/fetch-census.py`: explicit official-bulk-file snapshot regeneration, no API key. Census query endpoints required a key and Census Reporter was unavailable; neither is used at runtime.
 - `tools/icons.cjs`: canvas-drawn PNG globe variants, no remote image dependency.
@@ -26,7 +29,8 @@ Patterns borrowed from Huck/Preferences/World Flavors: immediate local settings,
 - `tests/browser.cjs`: isolated server on5298, Playwright/Chrome, mock voices, no external data writes. Phone/desktop screenshots in `/tmp`.
 - `tests/offline.cjs`: isolated server on5299, real service-worker installation, subpath and offline navigation/search checks.
 - `tests/customization.cjs`: isolated server on5300; maximum-size view, count presets, custom checklists/filtering/all/clear/apply/cancel, persistence, explicit English, both views, every palette and phone/desktop overflow.
-- `sw.js`: generated network-first same-origin GET cache, offline fallback. Uses `languages-phrases-v3`, removes older Languages caches on activation. Bump cache version when needed; visit/reload online before offline reliance.
+- `tests/worldwide.cjs`: isolated server on5301; world order, supported-only ranking, sources, English/custom behavior, persistence/deep links, location return/search and responsive themes.
+- `sw.js`: generated network-first same-origin GET cache, offline fallback. Uses `languages-worldwide-v4`, removes older Languages caches on activation. Bump cache version when needed; visit/reload online before offline reliance.
 
 ES modules, no framework. Vendored Lucide/QRCode retain original licenses. Paths must work under GitHub Pages `/languages/`; share/install point to root app, not staging.
 
